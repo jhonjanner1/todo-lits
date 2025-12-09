@@ -1,16 +1,42 @@
-# React + Vite
+# ✅ Todo App - Full Stack con React, Node.js y Railway MySQL
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Una aplicación completa de lista de tareas construida con **React** (frontend), **Node.js/Express** (backend) y **MySQL en Railway**. Desplegada en producción con **Render** (backend) y **Netlify** (frontend).
 
-Currently, two official plugins are available:
+![Estado](https://img.shields.io/badge/status-✅_Funcionando-brightgreen)
+![React](https://img.shields.io/badge/React-18.2-blue)
+![Node.js](https://img.shields.io/badge/Node.js-22.x-green)
+![MySQL](https://img.shields.io/badge/MySQL-Railway-orange)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 **Demo en Vivo**
 
-## React Compiler
+- **🌐 Frontend:** [https://merry-macaron-f07172.netlify.app](https://merry-macaron-f07172.netlify.app)
+- **⚙️ Backend API:** [https://todo-lits.onrender.com](https://todo-lits.onrender.com)
+- **🔍 API Health:** [https://todo-lits.onrender.com/api/health](https://todo-lits.onrender.com/api/health)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## ✨ **Características**
 
-## Expanding the ESLint configuration
+### **Frontend (React + Vite)**
+- ✅ Interfaz moderna y responsiva
+- ✅ Animaciones y efectos visuales
+- ✅ Marcado de tareas como completadas/pendientes
+- ✅ Eliminación de tareas con confirmación
+- ✅ Validación en tiempo real
+- ✅ Estado de conexión en tiempo real
+- ✅ Mensajes de éxito/error animados
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### **Backend (Node.js + Express)**
+- ✅ API RESTful completa (CRUD)
+- ✅ Conexión a MySQL en Railway
+- ✅ Configuración CORS para producción
+- ✅ Logs detallados para debugging
+- ✅ Manejo de errores robusto
+- ✅ Preflight requests manejadas
+- ✅ Health check endpoint
+
+### **Base de Datos (Railway MySQL)**
+- ✅ Tabla `todos` con auto-increment
+- ✅ Campos: id, title, description, completed, created_at
+- ✅ Persistencia en la nube
+- ✅ Backups automáticos de Railway
+
+## 🏗️ **Arquitectura del Sistema**
