@@ -20,87 +20,7 @@
                 border-radius: 10px; font-size: 16px; font-weight: bold; 
                 cursor: pointer; width: 100%; margin: 10px 0; }
         .todo-card { border: 2px solid #e0e0e0; border-radius: 15px; 
-                    padding: 20px; margin: 15px 0; transition: all 0.3s; }
-        .todo-card.completed { 
-            border-color: #4CAF50; 
-            background: #f8fff8;
-            position: relative;
-        }
-        .todo-card.completed::before {
-            content: "✅ COMPLETADA";
-            position: absolute;
-            top: -10px;
-            right: 20px;
-            background: #4CAF50;
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        .todo-card.completed h3 {
-            text-decoration: line-through;
-            color: #888;
-        }
-        .todo-card.completed .todo-description {
-            color: #aaa;
-        }
-        .btn-action { 
-            padding: 10px 20px; 
-            border-radius: 8px; 
-            border: none; 
-            cursor: pointer; 
-            font-weight: bold;
-            margin: 5px;
-            transition: all 0.3s;
-        }
-        .btn-complete { 
-            background: #4CAF50; 
-            color: white; 
-        }
-        .btn-complete:hover { 
-            background: #45a049; 
-        }
-        .btn-pending { 
-            background: #ff9800; 
-            color: white; 
-        }
-        .btn-pending:hover { 
-            background: #e68a00; 
-        }
-        .btn-delete { 
-            background: #f44336; 
-            color: white; 
-        }
-        .btn-delete:hover { 
-            background: #d32f2f; 
-        }
-        .todo-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 15px;
-        }
-        .completed-badge {
-            display: inline-block;
-            background: #4CAF50;
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: bold;
-            margin-left: 10px;
-        }
-        .pending-badge {
-            display: inline-block;
-            background: #ff9800;
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: bold;
-            margin-left: 10px;
-        }
+                    padding: 20px; margin: 15px 0; }
     </style>
 </head>
 <body>
@@ -230,103 +150,61 @@
             document.getElementById('todo-count').textContent = todos.length;
             
             const html = todos.map(todo => `
-                <div class="todo-card ${todo.completed ? 'completed' : ''}" id="todo-${todo.id}">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <h3 style="margin: 0;">${todo.title}</h3>
-                        <span class="${todo.completed ? 'completed-badge' : 'pending-badge'}">
-                            ${todo.completed ? '✅ COMPLETADA' : '⏳ PENDIENTE'}
-                        </span>
-                    </div>
-                    
-                    ${todo.description ? `<p class="todo-description" style="margin: 10px 0; color: #666;">${todo.description}</p>` : ''}
-                    
-                    <div style="color: #888; font-size: 0.9em; margin: 10px 0;">
+                <div class="todo-card">
+                    <h3>${todo.title}</h3>
+                    ${todo.description ? `<p>${todo.description}</p>` : ''}
+                    <small style="color:#666;">
                         📅 Creado: ${new Date(todo.created_at).toLocaleDateString()} | 
-                        ID: ${todo.id}
-                    </div>
-                    
-                    <div class="todo-actions">
-                        <button class="btn-action ${todo.completed ? 'btn-pending' : 'btn-complete'}" 
-                                onclick="toggleTodo(${todo.id}, ${todo.completed})">
-                            ${todo.completed ? '↩️ Marcar como pendiente' : '✅ Marcar como completada'}
-                        </button>
-                        
-                        <button class="btn-action btn-delete" 
-                                onclick="deleteTodo(${todo.id})">
+                        ID: ${todo.id} | 
+                        Estado: ${todo.completed ? '✅ Completada' : '⏳ Pendiente'}
+                    </small>
+                    <div style="margin-top: 10px;">
+                        <button onclick="deleteTodo(${todo.id})" style="background:#dc3545;width:auto;">
                             🗑️ Eliminar
+                        </button>
+                        <button onclick="toggleTodo(${todo.id}, ${todo.completed})" style="background:#ffc107;color:#000;width:auto;">
+                            ${todo.completed ? '↩️ Marcar pendiente' : '✅ Marcar completada'}
                         </button>
                     </div>
                 </div>
             `).join('');
             
             document.getElementById('todos').innerHTML = html || 
-                '<div style="text-align:center;padding:40px;color:#666;">🎉 ¡No hay tareas pendientes!<br>Agrega tu primera tarea usando el formulario.</div>';
+                '<p style="text-align:center;padding:20px;">🎉 ¡No hay tareas! Agrega la primera.</p>';
                 
         } catch(err) {
             console.error('Error cargando:', err);
             document.getElementById('todos').innerHTML = 
-                `<div style="background:#f8d7da;color:#721c24;padding:15px;border-radius:10px;">
-                    ❌ Error cargando tareas: ${err.message}
-                </div>`;
+                `<p style="color:red;">❌ Error: ${err.message}</p>`;
         }
     }
     
     async function deleteTodo(id) {
-        if (!confirm('¿Estás seguro de eliminar esta tarea?')) return;
+        if (!confirm('¿Eliminar esta tarea?')) return;
         
         try {
             await fetch(`${API_URL}/todos/${id}`, { method: 'DELETE' });
-            showMessage('✅ Tarea eliminada exitosamente', 'success');
+            showMessage('✅ Tarea eliminada', 'success');
             loadTodos();
         } catch(err) {
-            showMessage(`❌ Error eliminando tarea: ${err.message}`, 'error');
+            showMessage(`❌ Error: ${err.message}`, 'error');
         }
     }
     
     async function toggleTodo(id, completed) {
         try {
-            // Primero obtener la tarea actual
-            const getRes = await fetch(`${API_URL}/todos/${id}`);
-            const todo = await getRes.json();
+            const res = await fetch(`${API_URL}/todos/${id}`);
+            const todo = await res.json();
             
-            // Actualizar estado
-            const putRes = await fetch(`${API_URL}/todos/${id}`, {
+            await fetch(`${API_URL}/todos/${id}`, {
                 method: 'PUT',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    ...todo,
-                    completed: !completed
-                })
+                body: JSON.stringify({...todo, completed: !completed})
             });
             
-            if (!putRes.ok) throw new Error(`HTTP ${putRes.status}`);
-            
-            const updatedTodo = await putRes.json();
-            
-            // Mostrar mensaje específico
-            if (!completed) {
-                showMessage('✅ ¡Tarea completada! 🎉', 'success');
-                
-                // Animación visual
-                const todoElement = document.getElementById(`todo-${id}`);
-                if (todoElement) {
-                    todoElement.classList.add('completed');
-                    todoElement.style.transform = 'scale(1.02)';
-                    setTimeout(() => {
-                        todoElement.style.transform = 'scale(1)';
-                    }, 300);
-                }
-            } else {
-                showMessage('↩️ Tarea marcada como pendiente', 'success');
-            }
-            
-            // Recargar lista después de un breve delay
-            setTimeout(() => {
-                loadTodos();
-            }, 500);
-            
+            showMessage(`✅ Tarea ${!completed ? 'completada' : 'marcada pendiente'}`, 'success');
+            loadTodos();
         } catch(err) {
-            console.error('Error actualizando:', err);
             showMessage(`❌ Error: ${err.message}`, 'error');
         }
     }
@@ -347,7 +225,6 @@
                 color: ${colors[type].text};
                 text-align: center;
                 font-weight: bold;
-                animation: fadeIn 0.5s;
             ">
                 ${text}
             </div>
@@ -355,30 +232,6 @@
         
         setTimeout(() => div.innerHTML = '', 5000);
     }
-    
-    // Agregar animación CSS
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .todo-card {
-            animation: fadeIn 0.3s ease-out;
-        }
-        
-        .todo-card.completed {
-            animation: pulse 0.5s;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-    `;
-    document.head.appendChild(style);
     
     // Inicializar
     init();
