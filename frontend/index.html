@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>✅ Todo App - Sin CORS Issues</title>
+    <title>✅ Todo App - ¡FINAL!</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
@@ -9,122 +9,133 @@
                min-height: 100vh; padding: 20px; }
         .container { max-width: 800px; margin: 0 auto; background: white; 
                     border-radius: 20px; padding: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
-        h1 { color: #333; margin-bottom: 20px; }
-        .status { padding: 15px; border-radius: 10px; margin: 20px 0; text-align: center; }
-        .connected { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: #333; font-size: 2.5rem; margin-bottom: 10px; }
+        .status { padding: 15px; border-radius: 10px; margin: 20px 0; 
+                 background: #d4edda; color: #155724; text-align: center; }
         input, textarea { width: 100%; padding: 15px; margin: 10px 0; 
                          border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; }
         button { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
                 color: white; border: none; padding: 15px 30px; 
-                border-radius: 10px; font-size: 16px; cursor: pointer; width: 100%; 
-                margin: 10px 0; transition: opacity 0.3s; }
-        button:hover { opacity: 0.9; }
-        .todo-item { border: 2px solid #e0e0e0; border-radius: 15px; 
+                border-radius: 10px; font-size: 16px; font-weight: bold; 
+                cursor: pointer; width: 100%; margin: 10px 0; }
+        .todo-card { border: 2px solid #e0e0e0; border-radius: 15px; 
                     padding: 20px; margin: 15px 0; }
-        .todo-item.completed { border-color: #4CAF50; background: #f8fff8; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>✅ Todo App - CONECTADO</h1>
-        
-        <div id="status" class="status">Probando conexión...</div>
-        
+        <div class="header">
+            <h1>✅ Todo App - ¡FUNCIONANDO!</h1>
+            <div class="status" id="status">
+                Conectando al backend...
+            </div>
+        </div>
+
         <h2>➕ Nueva Tarea</h2>
-        <input type="text" id="title" placeholder="Título de la tarea" required>
+        <input type="text" id="title" placeholder="Título de la tarea *" required>
         <textarea id="description" placeholder="Descripción (opcional)" rows="3"></textarea>
         <button onclick="createTodo()">➕ Crear Tarea</button>
-        
-        <div id="message"></div>
-        
-        <h2>📋 Mis Tareas (<span id="count">0</span>)</h2>
+
+        <div id="message" style="margin: 20px 0;"></div>
+
+        <h2>📋 Mis Tareas (<span id="todo-count">0</span>)</h2>
         <button onclick="loadTodos()">🔄 Cargar Tareas</button>
         <div id="todos"></div>
     </div>
 
     <script>
-    // PROXY QUE SÍ FUNCIONA (sin necesidad de activación)
-    // Opción 1: Proxy rápido
-    const PROXY_URL = 'https://api.allorigins.win/raw?url=';
-    const BACKEND_URL = 'https://todo-lits.onrender.com/api';
-    const FULL_URL = PROXY_URL + encodeURIComponent(BACKEND_URL);
+    // ¡URL DIRECTA SIN PROXY!
+    const API_URL = 'https://todo-lits.onrender.com/api';
     
-    // Opción 2: O usar directamente si el CORS ya está configurado
-    // const FULL_URL = 'https://todo-lits.onrender.com/api';
+    console.log('🔗 Usando backend:', API_URL);
     
-    console.log('🔗 URL usada:', FULL_URL);
-    
-    async function testConnection() {
+    // Verificar conexión
+    async function init() {
         try {
-            const res = await fetch(FULL_URL + '/health');
-            const text = await res.text();
-            console.log('🔍 Response raw:', text);
-            
-            const data = JSON.parse(text);
+            const res = await fetch(API_URL + '/health');
+            const data = await res.json();
             document.getElementById('status').innerHTML = 
-                `<div class="connected">
-                    ✅ <strong>CONECTADO AL BACKEND</strong><br>
-                    Mensaje: ${data.message}<br>
-                    Base de datos: ${data.database}<br>
-                    CORS: ${data.cors || 'Configurado'}
-                </div>`;
-            return true;
+                `✅ <strong>CONECTADO</strong><br>
+                 ${data.message}<br>
+                 Base de datos: ${data.database}`;
+            loadTodos();
         } catch(err) {
-            console.error('❌ Error completo:', err);
             document.getElementById('status').innerHTML = 
-                `<div class="error">
-                    ❌ <strong>ERROR DE CONEXIÓN</strong><br>
-                    ${err.message}<br>
-                    URL: ${FULL_URL}<br>
-                    <small>Esperando que Render termine de desplegar los cambios de CORS...</small>
-                </div>`;
-            return false;
+                `❌ <strong>ERROR DE CONEXIÓN</strong><br>
+                 ${err.message}`;
         }
     }
     
     async function createTodo() {
-        const title = document.getElementById('title').value;
-        const desc = document.getElementById('description').value;
+        // Obtener valores CORRECTAMENTE
+        const titleInput = document.getElementById('title');
+        const descInput = document.getElementById('description');
         
-        if (!title.trim()) {
+        const title = titleInput.value;
+        const description = descInput.value;
+        
+        console.log('📤 Enviando:', { title, description });
+        
+        // Validación
+        if (!title || title.trim() === '') {
             showMessage('⚠️ Por favor ingresa un título', 'warning');
+            titleInput.focus();
             return;
         }
         
         try {
-            // Primero probar sin proxy (por si ya funciona el CORS)
-            const directUrl = 'https://todo-lits.onrender.com/api/todos';
-            const proxyUrl = FULL_URL + '/todos';
+            console.log('📤 POST a:', API_URL + '/todos');
+            console.log('📝 Datos:', JSON.stringify({title, description}));
             
-            console.log('📤 Intentando con URL directa:', directUrl);
-            
-            const res = await fetch(proxyUrl, {
+            const res = await fetch(API_URL + '/todos', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
                 body: JSON.stringify({
-                    title: title.trim(), 
-                    description: desc.trim()
+                    title: title.trim(),
+                    description: description.trim() || null
                 })
             });
             
-            console.log('📊 Response status:', res.status);
+            console.log('📊 Status:', res.status);
+            
             const responseText = await res.text();
-            console.log('📋 Response text:', responseText);
+            console.log('📄 Response:', responseText);
             
             if (!res.ok) {
-                throw new Error(`HTTP ${res.status}: ${responseText}`);
+                let errorMsg = `Error ${res.status}`;
+                try {
+                    const errorData = JSON.parse(responseText);
+                    errorMsg = errorData.error || errorData.message || responseText;
+                } catch(e) {
+                    errorMsg = responseText;
+                }
+                throw new Error(errorMsg);
             }
             
-            const todo = JSON.parse(responseText);
-            showMessage(`✅ Tarea creada: "${todo.title}" (ID: ${todo.id})`, 'success');
+            // Parsear respuesta
+            let newTodo;
+            try {
+                newTodo = JSON.parse(responseText);
+            } catch(e) {
+                throw new Error(`Respuesta no es JSON: ${responseText.substring(0, 100)}`);
+            }
+            
+            console.log('✅ Tarea creada:', newTodo);
+            
+            // Mostrar éxito
+            showMessage(`✅ Tarea creada: "${newTodo.title}" (ID: ${newTodo.id})`, 'success');
             
             // Limpiar formulario
-            document.getElementById('title').value = '';
-            document.getElementById('description').value = '';
+            titleInput.value = '';
+            descInput.value = '';
             
             // Recargar lista
             loadTodos();
+            
         } catch(err) {
             console.error('❌ Error completo:', err);
             showMessage(`❌ Error: ${err.message}`, 'error');
@@ -133,95 +144,68 @@
     
     async function loadTodos() {
         try {
-            const res = await fetch(FULL_URL + '/todos');
-            const responseText = await res.text();
-            console.log('📥 Todos response:', responseText);
+            const res = await fetch(API_URL + '/todos');
+            const todos = await res.json();
             
-            if (!res.ok) {
-                throw new Error(`HTTP ${res.status}: ${responseText}`);
-            }
+            document.getElementById('todo-count').textContent = todos.length;
             
-            const todos = JSON.parse(responseText);
-            document.getElementById('count').textContent = todos.length;
-            
-            if (todos.length === 0) {
-                document.getElementById('todos').innerHTML = 
-                    '<p style="text-align:center;padding:40px;color:#666;">🎉 ¡No hay tareas pendientes!<br>Agrega tu primera tarea usando el formulario.</p>';
-                return;
-            }
-            
-            const html = todos.map(t => `
-                <div class="todo-item ${t.completed ? 'completed' : ''}">
-                    <h3>${t.title}</h3>
-                    ${t.description ? `<p>${t.description}</p>` : ''}
-                    <small style="color:#888;">
-                        📅 Creado: ${new Date(t.created_at).toLocaleDateString()} | 
-                        Estado: ${t.completed ? '✅ Completada' : '⏳ Pendiente'} |
-                        ID: ${t.id}
+            const html = todos.map(todo => `
+                <div class="todo-card">
+                    <h3>${todo.title}</h3>
+                    ${todo.description ? `<p>${todo.description}</p>` : ''}
+                    <small style="color:#666;">
+                        📅 Creado: ${new Date(todo.created_at).toLocaleDateString()} | 
+                        ID: ${todo.id} | 
+                        Estado: ${todo.completed ? '✅ Completada' : '⏳ Pendiente'}
                     </small>
-                    <br><br>
-                    <button onclick="deleteTodo(${t.id})" style="background:#dc3545;width:auto;">
-                        🗑️ Eliminar
-                    </button>
-                    <button onclick="toggleTodo(${t.id}, ${t.completed})" style="background:#ffc107;color:#000;width:auto;">
-                        ${t.completed ? '↩️ Marcar como pendiente' : '✅ Marcar como completada'}
-                    </button>
+                    <div style="margin-top: 10px;">
+                        <button onclick="deleteTodo(${todo.id})" style="background:#dc3545;width:auto;">
+                            🗑️ Eliminar
+                        </button>
+                        <button onclick="toggleTodo(${todo.id}, ${todo.completed})" style="background:#ffc107;color:#000;width:auto;">
+                            ${todo.completed ? '↩️ Marcar pendiente' : '✅ Marcar completada'}
+                        </button>
+                    </div>
                 </div>
             `).join('');
             
-            document.getElementById('todos').innerHTML = html;
+            document.getElementById('todos').innerHTML = html || 
+                '<p style="text-align:center;padding:20px;">🎉 ¡No hay tareas! Agrega la primera.</p>';
+                
         } catch(err) {
-            console.error('❌ Error cargando todos:', err);
+            console.error('Error cargando:', err);
             document.getElementById('todos').innerHTML = 
-                `<div class="error">
-                    ❌ Error cargando tareas: ${err.message}<br>
-                    <button onclick="loadTodos()">🔄 Reintentar</button>
-                </div>`;
+                `<p style="color:red;">❌ Error: ${err.message}</p>`;
         }
     }
     
     async function deleteTodo(id) {
-        if (!confirm('¿Estás seguro de eliminar esta tarea?')) return;
+        if (!confirm('¿Eliminar esta tarea?')) return;
         
         try {
-            const res = await fetch(FULL_URL + '/todos/' + id, {
-                method: 'DELETE'
-            });
-            
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            
-            showMessage('✅ Tarea eliminada exitosamente', 'success');
+            await fetch(`${API_URL}/todos/${id}`, { method: 'DELETE' });
+            showMessage('✅ Tarea eliminada', 'success');
             loadTodos();
         } catch(err) {
-            showMessage(`❌ Error eliminando tarea: ${err.message}`, 'error');
+            showMessage(`❌ Error: ${err.message}`, 'error');
         }
     }
     
     async function toggleTodo(id, completed) {
         try {
-            // Primero obtener la tarea actual
-            const getRes = await fetch(FULL_URL + '/todos/' + id);
-            const todo = await getRes.json();
+            const res = await fetch(`${API_URL}/todos/${id}`);
+            const todo = await res.json();
             
-            // Actualizar estado
-            const putRes = await fetch(FULL_URL + '/todos/' + id, {
+            await fetch(`${API_URL}/todos/${id}`, {
                 method: 'PUT',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    ...todo,
-                    completed: !completed
-                })
+                body: JSON.stringify({...todo, completed: !completed})
             });
             
-            if (!putRes.ok) throw new Error(`HTTP ${putRes.status}`);
-            
-            showMessage(
-                `✅ Tarea ${!completed ? 'completada' : 'marcada como pendiente'}`,
-                'success'
-            );
+            showMessage(`✅ Tarea ${!completed ? 'completada' : 'marcada pendiente'}`, 'success');
             loadTodos();
         } catch(err) {
-            showMessage(`❌ Error actualizando tarea: ${err.message}`, 'error');
+            showMessage(`❌ Error: ${err.message}`, 'error');
         }
     }
     
@@ -236,33 +220,21 @@
         div.innerHTML = `
             <div style="
                 padding: 15px;
-                margin: 15px 0;
                 border-radius: 10px;
                 background: ${colors[type].bg};
                 color: ${colors[type].text};
+                text-align: center;
                 font-weight: bold;
             ">
                 ${text}
             </div>
         `;
         
-        setTimeout(() => {
-            div.innerHTML = '';
-        }, 5000);
+        setTimeout(() => div.innerHTML = '', 5000);
     }
     
     // Inicializar
-    testConnection();
-    loadTodos();
-    
-    // Recargar automáticamente cada 30 segundos (para cuando Render termine)
-    setInterval(() => {
-        if (document.getElementById('status').textContent.includes('ERROR')) {
-            console.log('🔄 Recargando automáticamente...');
-            testConnection();
-            loadTodos();
-        }
-    }, 30000);
+    init();
     </script>
 </body>
 </html>
